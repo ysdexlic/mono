@@ -16,6 +16,8 @@ jobs:
 
       - name: install go
         uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15.6'
 
       - name: install monobuild
         run: |
@@ -33,12 +35,23 @@ jobs:
             # Feature branch mode
             schedule=$(monobuild diff --base-branch origin/main)
           fi
-          echo "$schedule"
           dependencies=$(echo "$schedule" | awk 'BEGIN { FS = ":" } ; { print $1 }')
-          echo "$dependencies"
-          echo "::set-output name=matrix::{\"service\":[\"test-app\", \"second-test-app\"]}"
+
+          list="["
+
+          for dep in ${dependencies[@]}; do
+            service=$(basename $dep)
+            list="$list\"$service\",";
+          done
+
+          # remove last comma
+          list="${list%?}]"
+
+          # TODO: use matrix includes to add info on dependant services
+          echo "::set-output name=matrix::{\"service\":$list}"
 
   build_and_push:
+    needs: collect_services
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.collect_services.outputs.matrix)}}
@@ -58,11 +71,3 @@ jobs:
         run: |
           cd lib/${{ matrix.service }}
           make service=${{ matrix.service }} tag=$GITHUB_SHA
-
-          # if [ $GITHUB_REF == "refs/heads/main" ]; then
-          #   DEV=ghcr.io/ysdexlic-mono/${{ matrix.service }}
-          #   PROD=ghcr.io/ysdexlic-mono-prod/${{ matrix.service }}
-          #   docker tag $DEV $PROD:latest
-          #   docker tag $DEV $PROD:$GITHUB_SHA
-          #   make push image=$PROD tag=$GITHUB_SHA
-          # fi
