@@ -46,8 +46,8 @@ jobs:
 
           # remove last comma
           list="${list%?}]"
-          echo $list
 
+          # TODO: use matrix includes to add info on dependant services
           echo "::set-output name=matrix::{\"service\":$list}"
 
   build_and_push:
