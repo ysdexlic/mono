@@ -35,17 +35,17 @@ jobs:
             # Feature branch mode
             schedule=$(monobuild diff --base-branch origin/main)
           fi
-          dependencies=$(echo "$schedule" | awk 'BEGIN { FS = ":" } ; { print $1 }' | xargs -L1)
+          dependencies=$(echo "$schedule" | awk 'BEGIN { FS = ":" } ; { print $1 }')
 
           list="["
 
-          echo $dependencies | while read line; do
-            service=$(basename $line)
+          for dep in ${dependencies[@]}; do
+            service=$(basename $dep)
             list="$list\"$service\",";
           done
 
           # remove last comma
-          list="${list: : -1}]"
+          list="${list%?}]"
           echo $list
 
           echo "::set-output name=matrix::{\"service\":$list}"
