@@ -1,3 +1,5 @@
+LABEL org.opencontainers.image.source https://github.com/ysdexlic/mono
+
 FROM node:15.5.1-alpine3.11 as builder
 
 WORKDIR /opt/app

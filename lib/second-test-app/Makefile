@@ -1,4 +1,4 @@
-app := test-app
+app := second-test-app
 image := ghcr.io/ysdexlic/$(app)
 tag := latest
 
