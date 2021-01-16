@@ -25,7 +25,7 @@ jobs:
       - name: set services matrix
         id: set-matrix
         run: |
-          See https://github.com/charypar/monobuild#change-detection
+          # See https://github.com/charypar/monobuild#change-detection
           if [ $GITHUB_REF == "refs/heads/main" ]; then
             # Main branch mode
             schedule=$(monobuild diff --main-branch)
