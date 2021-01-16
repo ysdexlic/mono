@@ -1,5 +1,5 @@
 app := test-app
-image := ghcr.io/ysdexlic-mono/$(app)
+image := ghcr.io/ysdexlic/$(app)
 tag := latest
 
 .PHONY: default
@@ -25,4 +25,3 @@ run-ci: ## Runs the docker image in CI
 .PHONY: help
 help: ## Display this help screen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
-

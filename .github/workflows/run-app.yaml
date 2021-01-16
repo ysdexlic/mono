@@ -57,11 +57,3 @@ jobs:
         run: |
           cd lib/${{ matrix.service }}
           make service=${{ matrix.service }} tag=$GITHUB_SHA
-
-          # if [ $GITHUB_REF == "refs/heads/main" ]; then
-          #   DEV=ghcr.io/ysdexlic-mono/${{ matrix.service }}
-          #   PROD=ghcr.io/ysdexlic-mono-prod/${{ matrix.service }}
-          #   docker tag $DEV $PROD:latest
-          #   docker tag $DEV $PROD:$GITHUB_SHA
-          #   make push image=$PROD tag=$GITHUB_SHA
-          # fi
