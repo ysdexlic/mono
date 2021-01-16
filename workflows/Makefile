@@ -2,12 +2,11 @@ service := service-name
 overlay := dev
 tag := latest
 
-# TODO: get repo
-repo := eu.gcr.io/ysdexlic-platform
+repo := ghcr.io/ysdexlic-mono
 
 repo-dev := $(repo)
 repo-staging := $(repo)
-repo-prod := $(repo)-production
+repo-prod := $(repo)-prod
 
 .PHONY: ci-init
 ci-init: ## fetches digest hash
