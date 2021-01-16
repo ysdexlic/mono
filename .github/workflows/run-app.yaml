@@ -14,10 +14,10 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v1
 
-      - name: install go
-        uses: actions/setup-go@v2
-
       - name: install monobuild
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15.6'
         run: |
           go get -d github.com/charypar/monobuild
           go install github.com/charypar/monobuild
@@ -25,15 +25,17 @@ jobs:
       - name: set services matrix
         id: set-matrix
         run: |
-          # See https://github.com/charypar/monobuild#change-detection
-          # if [ $GITHUB_REF == "refs/heads/main" ]; then
-          #   # Main branch mode
-          #   schedule=$(monobuild diff --main-branch)
-          # else
-          #   # Feature branch mode
-          #   schedule=$(monobuild diff --base-branch origin/main)
-          # fi
-          # dependencies=$(echo "$schedule" | awk 'BEGIN { FS = ":" } ; { print $1 }')
+          See https://github.com/charypar/monobuild#change-detection
+          if [ $GITHUB_REF == "refs/heads/main" ]; then
+            # Main branch mode
+            schedule=$(monobuild diff --main-branch)
+          else
+            # Feature branch mode
+            schedule=$(monobuild diff --base-branch origin/main)
+          fi
+          echo $schedule
+          dependencies=$(echo "$schedule" | awk 'BEGIN { FS = ":" } ; { print $1 }')
+          echo $dependencies
           echo "::set-output name=matrix::{\"service\":[\"test-app\", \"second-test-app\"]}"
 
   build_and_push:
