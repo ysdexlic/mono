@@ -76,8 +76,8 @@ jobs:
           context: ./lib/${{ matrix.service }}
           push: true
           tags: |
-            ysdexlic/${{ matrix.service }}:latest
-            ysdexlic/${{ matrix.service }}:$GITHUB_SHA
+            ghcr.io/ysdexlic/${{ matrix.service }}:latest
+            ghcr.io/ysdexlic/${{ matrix.service }}:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
