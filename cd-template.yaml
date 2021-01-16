@@ -1,0 +1,39 @@
+name: {{LIB_APP}}-CI
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'lib/{{LIB_APP}}/**'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v2
+
+      - name: CI init
+        run: |
+          make ci-init service={{LIB_APP}} overlay=dev tag=$GITHUB_SHA
+
+          if [ $GITHUB_REF = "refs/heads/main" ]; then
+            make ci-init service={{LIB_APP}} overlay=staging tag=$GITHUB_SHA
+            make ci-init service={{LIB_APP}} overlay=prod tag=$GITHUB_SHA
+          fi
+
+      - name: CI prep
+        run: |
+          make ci-prep
+          make ci service={{LIB_APP}} overlay=dev tag=$GITHUB_SHA
+
+          if [ $GITHUB_REF = "refs/heads/main" ]; then
+            make ci service={{LIB_APP}} overlay=staging tag=$GITHUB_SHA
+            make ci service={{LIB_APP}} overlay=prod tag=$GITHUB_SHA
+          fi
+
+      - name: CI finish
+        run: make ci-finish service={{LIB_APP}}
