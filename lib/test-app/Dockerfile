@@ -11,8 +11,6 @@ ENV CI=true
 
 COPY . .
 
-# RUN yarn lint
-# RUN yarn test
 RUN yarn build
 
 
