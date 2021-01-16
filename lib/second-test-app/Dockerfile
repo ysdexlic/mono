@@ -28,7 +28,6 @@ COPY package.json yarn.lock ./
 RUN yarn config set no-progress && \
     yarn --frozen-lockfile
 
-COPY next.config.js ./
 COPY --from=builder /opt/app/.next .next
 COPY --from=builder /opt/app/public public
 
