@@ -26,16 +26,14 @@ jobs:
         id: set-matrix
         run: |
           # See https://github.com/charypar/monobuild#change-detection
-          if [ $GITHUB_REF == "refs/heads/main" ]; then
-            # Main branch mode
-            schedule=$(monobuild diff --main-branch)
-          else
-            # Feature branch mode
-            schedule=$(monobuild diff --base-branch origin/main)
-          fi
-          echo "$schedule"
-          dependencies=$(echo "$schedule" | awk 'BEGIN { FS = ":" } ; { print $1 }')
-          echo "$dependencies"
+          # if [ $GITHUB_REF == "refs/heads/main" ]; then
+          #   # Main branch mode
+          #   schedule=$(monobuild diff --main-branch)
+          # else
+          #   # Feature branch mode
+          #   schedule=$(monobuild diff --base-branch origin/main)
+          # fi
+          # dependencies=$(echo "$schedule" | awk 'BEGIN { FS = ":" } ; { print $1 }')
           echo "::set-output name=matrix::{\"service\":[\"test-app\", \"second-test-app\"]}"
 
   build_and_push:
