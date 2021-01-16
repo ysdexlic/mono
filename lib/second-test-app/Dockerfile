@@ -1,6 +1,6 @@
-LABEL org.opencontainers.image.source https://github.com/ysdexlic/mono
-
 FROM node:15.5.1-alpine3.11 as builder
+
+LABEL org.opencontainers.image.source https://github.com/ysdexlic/mono
 
 WORKDIR /opt/app
 
@@ -15,6 +15,7 @@ COPY . .
 
 RUN yarn build
 
+---
 
 FROM node:15.5.1-alpine3.11
 
