@@ -1,7 +1,5 @@
 FROM node:15.5.1-alpine3.11 as builder
 
-LABEL org.opencontainers.image.source https://github.com/ysdexlic/mono
-
 WORKDIR /opt/app
 
 COPY package.json yarn.lock ./
@@ -17,6 +15,8 @@ RUN yarn build
 
 
 FROM node:15.5.1-alpine3.11
+
+LABEL org.opencontainers.image.source https://github.com/ysdexlic/mono
 
 WORKDIR /opt/app
 
