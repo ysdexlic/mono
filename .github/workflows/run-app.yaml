@@ -37,6 +37,7 @@ jobs:
           echo "::set-output name=matrix::{\"service\":[\"test-app\", \"second-test-app\"]}"
 
   build_and_push:
+    needs: collect_services
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.collect_services.outputs.matrix)}}
