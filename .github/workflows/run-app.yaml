@@ -35,10 +35,20 @@ jobs:
             # Feature branch mode
             schedule=$(monobuild diff --base-branch origin/main)
           fi
-          echo $schedule
-          dependencies=$(echo "$schedule" | awk 'BEGIN { FS = ":" } ; { print $1 }')
-          echo $dependencies
-          echo "::set-output name=matrix::{\"service\":[\"test-app\", \"second-test-app\"]}"
+          dependencies=$(echo "$schedule" | awk 'BEGIN { FS = ":" } ; { print $1 }' | xargs -L1)
+
+          list="["
+
+          echo $dependencies | while read line; do
+            service=$(basename $line)
+            list="$list\"$service\",";
+          done
+
+          # remove last comma
+          list="${list: : -1}]"
+          echo $list
+
+          echo "::set-output name=matrix::{\"service\":$list}"
 
   build_and_push:
     needs: collect_services
