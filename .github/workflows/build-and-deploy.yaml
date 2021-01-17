@@ -107,15 +107,29 @@ jobs:
         run: |
           gh_branch=${GITHUB_REF#refs/heads/}
 
-          make ci service=${{ matrix.service }} overlay=dev tag=$GITHUB_SHA digest=${{ needs.build_and_push.outputs.digest }}
+          make ci \
+            service=${{ matrix.service }} \
+            overlay=dev \
+            tag=$GITHUB_SHA \
+            digest=${{ needs.build_and_push.outputs.digest }}
+            config-repo="../mono-config"
 
-          if [[ $gh_branch == staging || $gh_branch == ${{ matrix.service }}-staging || $gh_branch == release/* ]]; then
-            make ci service=${{ matrix.service }} overlay=staging tag=$GITHUB_SHA digest=${{ needs.build_and_push.outputs.digest }}
+          if [[ $gh_branch == staging || $gh_branch == ${{ matrix.service }}-staging || $gh_branch == release/* || $gh_branch == main ]]; then
+            make ci \
+              service=${{ matrix.service }} \
+              overlay=staging \
+              tag=$GITHUB_SHA \
+              digest=${{ needs.build_and_push.outputs.digest }}
+              config-repo="../mono-config"
           fi
 
           if [[ $gh_branch == main ]]; then
-            make ci service=${{ matrix.service }} overlay=staging tag=$GITHUB_SHA digest=${{ needs.build_and_push.outputs.digest }}
-            make ci service=${{ matrix.service }} overlay=prod tag=$GITHUB_SHA digest=${{ needs.build_and_push.outputs.digest }}
+            make ci \
+              service=${{ matrix.service }} \
+              overlay=prod \
+              tag=$GITHUB_SHA \
+              digest=${{ needs.build_and_push.outputs.digest }}
+              config-repo="../mono-config"
           fi
         working-directory: mono
 
@@ -128,3 +142,4 @@ jobs:
           git config --global user.name "GH Actions Build"
 
           make ci-finish service=${{ matrix.service }} branch=$gh_branch build_ur=$workflow_url
+        working-directory: mono-config
