@@ -11,8 +11,8 @@ repo := ghcr.io/ysdexlic
 
 .PHONY: ci
 ci: ## sets tag for deployment
-	cd $(config-repo)/$(service)/overlays/$(overlay) \
-	&& kustomize edit set image $(repo)/$(service)=$(repo)/$(service)@$${digest}
+	cd $(config-repo)/lib/$(service)/overlays/$(overlay) \
+	&& kustomize edit set image $(repo)/$(service)=$(repo)/$(service)@$(digest)
 
 .PHONY: ci-finish
 ci-finish: ## prepares for deployment
