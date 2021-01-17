@@ -111,7 +111,7 @@ jobs:
             service=${{ matrix.service }} \
             overlay=dev \
             tag=$GITHUB_SHA \
-            digest=${{ needs.build_and_push.outputs.digest }}
+            digest=${{ needs.build_and_push.outputs.digest }} \
             config-repo="../mono-config"
 
           if [[ $gh_branch == staging || $gh_branch == ${{ matrix.service }}-staging || $gh_branch == release/* || $gh_branch == main ]]; then
@@ -119,7 +119,7 @@ jobs:
               service=${{ matrix.service }} \
               overlay=staging \
               tag=$GITHUB_SHA \
-              digest=${{ needs.build_and_push.outputs.digest }}
+              digest=${{ needs.build_and_push.outputs.digest }} \
               config-repo="../mono-config"
           fi
 
@@ -128,7 +128,7 @@ jobs:
               service=${{ matrix.service }} \
               overlay=prod \
               tag=$GITHUB_SHA \
-              digest=${{ needs.build_and_push.outputs.digest }}
+              digest=${{ needs.build_and_push.outputs.digest }} \
               config-repo="../mono-config"
           fi
         working-directory: mono
