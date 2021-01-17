@@ -23,6 +23,7 @@ LABEL org.opencontainers.image.source https://github.com/ysdexlic/mono
 
 WORKDIR /opt/app
 ENV NODE_ENV=production
+COPY --from=builder /opt/app/package.json ./
 COPY --from=builder /opt/app/next.config.js ./
 COPY --from=builder /opt/app/public ./public
 COPY --from=builder /opt/app/.next ./.next
