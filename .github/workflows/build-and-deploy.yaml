@@ -144,6 +144,6 @@ jobs:
           make ci-finish \
             service=${{ matrix.service }} \
             branch=$gh_branch \
-            build_ur=$workflow_url \
+            build_url=$workflow_url \
             config-repo="../mono-config"
         working-directory: mono

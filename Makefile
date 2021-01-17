@@ -19,7 +19,7 @@ ci-finish: ## prepares for deployment
 	cd $(config-repo) \
 	&& git add . \
 	&& git diff-index --quiet HEAD || git commit -m "Update $(service) image tags from CI ($(branch)) $(build-url)" \
-	&& git push origin master
+	&& git push origin main
 
 .PHONY: help
 help: ## Display this help screen
