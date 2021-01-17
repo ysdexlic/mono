@@ -128,4 +128,4 @@ jobs:
           git config --global user.name "GH Actions Build"
 
           make ci-finish service=${{ matrix.service }} branch=$gh_branch build_ur=$workflow_url
-        workflow-directory: mono-config
+        working-directory: mono-config
