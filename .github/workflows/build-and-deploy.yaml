@@ -1,0 +1,149 @@
+name: build and deploy
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  collect_services:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v1
+
+      - name: install go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15.6'
+
+      - name: install monobuild
+        run: |
+          go get -d github.com/charypar/monobuild
+          go install github.com/charypar/monobuild
+
+      - name: set services matrix
+        id: set-matrix
+        run: |
+          # See https://github.com/charypar/monobuild#change-detection
+          if [[ $GITHUB_REF == refs/heads/main ]]; then
+            # Main branch mode
+            schedule=$(monobuild diff --main-branch)
+          else
+            # Feature branch mode
+            schedule=$(monobuild diff --base-branch origin/main)
+          fi
+          dependencies=$(echo "$schedule" | awk 'BEGIN { FS = ":" } ; { print $1 }')
+
+          list="["
+
+          for dep in ${dependencies[@]}; do
+            service=$(basename $dep)
+            list="$list\"$service\",";
+          done
+
+          # remove last comma
+          list="${list%?}]"
+
+          # TODO: use matrix includes to add info on dependant services
+          echo "::set-output name=matrix::{\"service\":$list}"
+
+  build_and_push:
+    needs: collect_services
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.collect_services.outputs.matrix)}}
+    outputs:
+      digest: ${{ steps.docker-build.outputs.digest }}
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Build and push
+        id: docker-build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./lib/${{ matrix.service }}
+          push: true
+          tags: |
+            ghcr.io/ysdexlic/${{ matrix.service }}:latest
+            ghcr.io/ysdexlic/${{ matrix.service }}:${{ github.sha }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [collect_services, build_and_push]
+    strategy:
+      matrix: ${{fromJson(needs.collect_services.outputs.matrix)}}
+
+    steps:
+      - name: checkout config repo
+        uses: actions/checkout@v2
+        with:
+          path: mono
+
+      - name: checkout config repo
+        uses: actions/checkout@v2
+        with:
+          repository: ysdexlic/mono-config
+          token: ${{ secrets.GH_PAT }}
+          path: mono-config
+
+      - name: setup kustomize
+        uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: "3.1.0"
+
+      - name: update mono-config
+        run: |
+          gh_branch=${GITHUB_REF#refs/heads/}
+
+          make ci \
+            service=${{ matrix.service }} \
+            overlay=dev \
+            tag=$GITHUB_SHA \
+            digest=${{ needs.build_and_push.outputs.digest }} \
+            config-repo="../mono-config"
+
+          if [[ $gh_branch == staging || $gh_branch == ${{ matrix.service }}-staging || $gh_branch == release/* || $gh_branch == main ]]; then
+            make ci \
+              service=${{ matrix.service }} \
+              overlay=staging \
+              tag=$GITHUB_SHA \
+              digest=${{ needs.build_and_push.outputs.digest }} \
+              config-repo="../mono-config"
+          fi
+
+          if [[ $gh_branch == main ]]; then
+            make ci \
+              service=${{ matrix.service }} \
+              overlay=prod \
+              tag=$GITHUB_SHA \
+              digest=${{ needs.build_and_push.outputs.digest }} \
+              config-repo="../mono-config"
+          fi
+        working-directory: mono
+
+      - name: prepare deployment
+        run: |
+          workflow_url=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+          gh_branch=${GITHUB_REF#refs/heads/}
+
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GH Actions Build"
+
+          make ci-finish \
+            service=${{ matrix.service }} \
+            branch=$gh_branch \
+            build_url=$workflow_url \
+            config-repo="../mono-config"
+        working-directory: mono
