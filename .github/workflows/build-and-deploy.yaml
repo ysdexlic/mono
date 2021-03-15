@@ -23,7 +23,7 @@ jobs:
       - name: install monobuild
         run: |
           go get -d github.com/charypar/monobuild
-          go install github.com/charypar/monobuild
+          go install github.com/charypar/monobuild@latest
 
       - name: set services matrix
         id: set-matrix
